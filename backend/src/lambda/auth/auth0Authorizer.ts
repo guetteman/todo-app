@@ -72,3 +72,24 @@ function getToken(authHeader: string): string {
 
   return token
 }
+
+async function getJwks(jwksUrl: string, kidHeader: string) {
+  const response = await Axios.get(jwksUrl)
+  const jwks: any[] = response.data.keys
+
+  const key = getSigningKey(jwks, kidHeader)
+
+  if (!key) throw new Error('The JWKS endpoint did not contain any signing key')
+
+  return key.x5c[0]
+}
+
+function getSigningKey(jwks: any[], kidHeader:string) {
+  return jwks.find(key => key.kid === kidHeader && key.kty === 'RSA')
+}
+
+function certificateToPem(certificate:string):string {
+  return '-----BEGIN CERTIFICATE-----\n'
+    + certificate
+    + "\n-----END CERTIFICATE-----"
+}
