@@ -4,13 +4,17 @@ service:
 plugins:
   - serverless-webpack
   - serverless-iam-roles-per-function
-
+  - serverless-plugin-tracing
 package:
   individually: true
 
 provider:
   name: aws
   runtime: nodejs12.x
+
+  tracing:
+    lambda: true
+    apiGateway: true
 
   stage: ${opt:stage, 'dev'}
   region: ${opt:region, 'us-east-1'}
@@ -59,7 +63,6 @@ functions:
           - "xray:PutTelemetryRecords"
         Resource:
           - "*"
-
 
   CreateTodo:
     handler: src/lambda/http/createTodo.handler
@@ -129,6 +132,7 @@ functions:
       - http:
           method: delete
           path: todos/{todoId}
+          cors: true
           authorizer: Auth
           reqValidatorName: RequestBodyValidator
           documentation:
@@ -158,6 +162,7 @@ functions:
       - http:
           method: post
           path: todos/{todoId}/attachment
+          cors: true
           authorizer: Auth
           reqValidatorName: RequestBodyValidator
           documentation:
@@ -190,6 +195,17 @@ functions:
 
 resources:
   Resources:
+    GatewayResponseDefault4XX:
+      Type: AWS::ApiGateway::GatewayResponse
+      Properties:
+        ResponseParameters:
+          gatewayresponse.header.Access-Control-Allow-Origin: "'*'"
+          gatewayresponse.header.Access-Control-Allow-Headers: "'*'"
+          gatewayresponse.header.Access-Control-Allow-Methods: "'GET,OPTIONS,POST'"
+        ResponseType: DEFAULT_4XX
+        RestApiId:
+          Ref: ApiGatewayRestApi
+
     TodosTable:
       Type: AWS::DynamoDB::Table
       Properties:
