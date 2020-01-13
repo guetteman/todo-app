@@ -29,7 +29,6 @@ functions:
     handler: src/lambda/auth/auth0Authorizer.handler
     cors: true
 
-  # TODO: Configure this function
   GetTodos:
     handler: src/lambda/http/getTodos.handler
     events:
@@ -124,72 +123,70 @@ functions:
         Resource:
           - "*"
 
-  # # TODO: Configure this function
-  # DeleteTodo:
-  #   handler: src/lambda/http/deleteTodo.handler
-  #   events:
-  #     - http:
-  #         method: delete
-  #         path: todos/{todoId}
-  #         authorizer: Auth
-  #         reqValidatorName: RequestBodyValidator
-  #         documentation:
-  #           summary: Delete a to do
-  #           description: Delete a to do
-  #   iamRoleStatements:
-  #     - Effect: Allow
-  #       Action:
-  #         - codedeploy:*
-  #       Resource:
-  #         - '*'
-  #     - Effect: Allow
-  #       Action:
-  #         - dynamodb:DeleteItem
-  #         - dynamodb:Delete
-  #       Resource: arn:aws:dynamodb:${self:provider.region}:*:table/${self:provider.environment.TODOS_TABLE}
-  #     - Effect: "Allow" # xray permissions (required)
-  #       Action:
-  #         - "xray:PutTraceSegments"
-  #         - "xray:PutTelemetryRecords"
-  #       Resource:
-  #         - "*"
+  DeleteTodo:
+    handler: src/lambda/http/deleteTodo.handler
+    events:
+      - http:
+          method: delete
+          path: todos/{todoId}
+          authorizer: Auth
+          reqValidatorName: RequestBodyValidator
+          documentation:
+            summary: Delete a to do
+            description: Delete a to do
+    iamRoleStatements:
+      - Effect: Allow
+        Action:
+          - codedeploy:*
+        Resource:
+          - '*'
+      - Effect: Allow
+        Action:
+          - dynamodb:DeleteItem
+          - dynamodb:Delete
+        Resource: arn:aws:dynamodb:${self:provider.region}:*:table/${self:provider.environment.TODOS_TABLE}
+      - Effect: "Allow" # xray permissions (required)
+        Action:
+          - "xray:PutTraceSegments"
+          - "xray:PutTelemetryRecords"
+        Resource:
+          - "*"
 
-  # # TODO: Configure this function
-  # GenerateUploadUrl:
-  #   handler: src/lambda/http/generateUploadUrl.handler
-  #   events:
-  #     - http:
-  #         method: post
-  #         path: todos/{todoId}/attachment
-  #         authorizer: Auth
-  #         reqValidatorName: RequestBodyValidator
-  #         documentation:
-  #           summary: Generate an Upload Url
-  #           description: Generate an Upload Url
-  #   iamRoleStatements:
-  #     - Effect: Allow
-  #       Action:
-  #         - codedeploy:*
-  #       Resource:
-  #         - '*'
-  #     - Effect: Allow
-  #       Action:
-  #         - s3:PutObject
-  #         - s3:GetObject
-  #         - s3:DeleteObject
-  #       Resource: arn:aws:s3:::${self:provider.environment.S3_BUCKET}/*
-  #     - Effect: Allow
-  #       Action:
-  #         - dynamodb:PutItem
-  #         - dynamodb:GetItem
-  #         - dynamodb:UpdateItem
-  #       Resource: arn:aws:dynamodb:${self:provider.region}:*:table/${self:provider.environment.TODOS_TABLE}
-  #     - Effect: "Allow" # xray permissions (required)
-  #       Action:
-  #         - "xray:PutTraceSegments"
-  #         - "xray:PutTelemetryRecords"
-  #       Resource:
-  #         - "*"
+  GenerateUploadUrl:
+    handler: src/lambda/http/generateUploadUrl.handler
+    events:
+      - http:
+          method: post
+          path: todos/{todoId}/attachment
+          authorizer: Auth
+          reqValidatorName: RequestBodyValidator
+          documentation:
+            summary: Generate an Upload Url
+            description: Generate an Upload Url
+    iamRoleStatements:
+      - Effect: Allow
+        Action:
+          - codedeploy:*
+        Resource:
+          - '*'
+      - Effect: Allow
+        Action:
+          - s3:PutObject
+          - s3:GetObject
+          - s3:DeleteObject
+        Resource: arn:aws:s3:::${self:provider.environment.S3_BUCKET}/*
+      - Effect: Allow
+        Action:
+          - dynamodb:PutItem
+          - dynamodb:GetItem
+          - dynamodb:UpdateItem
+        Resource: arn:aws:dynamodb:${self:provider.region}:*:table/${self:provider.environment.TODOS_TABLE}
+      - Effect: "Allow" # xray permissions (required)
+        Action:
+          - "xray:PutTraceSegments"
+          - "xray:PutTelemetryRecords"
+        Resource:
+          - "*"
 
 resources:
   Resources:

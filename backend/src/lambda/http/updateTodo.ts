@@ -6,7 +6,7 @@ import { updateTodo } from '../../DataLayer/Todo'
 import { createLogger } from '../../utils/logger'
 import { getResponseHeaders } from '../utils'
 
-const logger = createLogger('createTodo')
+const logger = createLogger('updateTodo')
 
 
 export const handler: APIGatewayProxyHandler = async (event: APIGatewayProxyEvent): Promise<APIGatewayProxyResult> => {

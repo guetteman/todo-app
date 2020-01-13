@@ -7,7 +7,9 @@ import * as uuid from 'uuid'
 import { UpdateTodoRequest } from "../requests/UpdateTodoRequest";
 
 const XAWS = AWSXRAY.captureAWS(AWS)
-const TABLE = process.env.TODOS_TABLE
+const TABLE_NAME = process.env.TODOS_TABLE
+const BUCKET = process.env.S3_BUCKET
+
 const docClient = new XAWS.DynamoDB.DocumentClient
 
 export async function createTodo(data: CreateTodoRequest, event:APIGatewayProxyEvent) {
@@ -21,7 +23,7 @@ export async function createTodo(data: CreateTodoRequest, event:APIGatewayProxyE
     }
 
     await docClient.put({
-        TableName: TABLE,
+        TableName: TABLE_NAME,
         Item: todo      
     }).promise()
 
@@ -30,7 +32,7 @@ export async function createTodo(data: CreateTodoRequest, event:APIGatewayProxyE
 
 export async function getTodos(event:APIGatewayProxyEvent) {
     const response = await docClient.query({
-        TableName: TABLE,
+        TableName: TABLE_NAME,
         IndexName: process.env.USER_ID_INDEX,
         KeyConditionExpression: 'userId = :userId',
         ExpressionAttributeValues: {
@@ -43,7 +45,7 @@ export async function getTodos(event:APIGatewayProxyEvent) {
 
 export async function updateTodo(data:UpdateTodoRequest, todoId:string, event:APIGatewayProxyEvent) {
     return await docClient.update({
-        TableName: TABLE,
+        TableName: TABLE_NAME,
         Key: {
             todoId: todoId,
             userId: getUserId(event)
@@ -57,4 +59,57 @@ export async function updateTodo(data:UpdateTodoRequest, todoId:string, event:AP
         ReturnValues: "UPDATED_NEW"     
           
     }).promise();
+}
+
+export async function deleteTodo(todoId:string, event:APIGatewayProxyEvent) {
+    const Key = {
+        todoId: todoId,
+        userId: getUserId(event)
+    }
+
+    return await docClient.delete({
+        TableName: TABLE_NAME,
+        Key: Key
+    }).promise()
+}
+
+export function getUploadUrl(todoId: string) {
+    const s3 = new XAWS.S3({ signatureVersion: 'v4'})
+    const urlExpiration = process.env.SIGNED_URL_EXPIRATION
+
+    return s3.getSignedUrl('putObject', {
+        Bucket: BUCKET,
+        Key: todoId,
+        Expires: urlExpiration
+    })
+}
+
+export async function updateUrl(todoId: string, event:APIGatewayProxyEvent){
+    const url =  `https://${BUCKET}.s3.amazonaws.com/${todoId}`
+    
+    return await docClient.update({
+        TableName: TABLE_NAME,
+        Key: {
+          todoId: todoId,
+          userId: getUserId(event)
+        },
+        UpdateExpression: 'set uploadUrl = :uploadUrl',
+        ExpressionAttributeValues: {
+            ':uploadUrl': url
+        },
+        ReturnValues: "UPDATED_NEW"
+    })
+    .promise()
+}
+
+export async function todoExists(todoId: string, event:APIGatewayProxyEvent) {
+    const response = await docClient.get({
+        TableName: TABLE_NAME,
+        Key: {
+            todoId: todoId,
+            userId: getUserId(event)
+        }
+    }).promise()
+  
+    return !!response.Item
 }
