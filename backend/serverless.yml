@@ -93,37 +93,36 @@ functions:
         Resource:
           - "*"
 
-  # TODO: Configure this function
-  # UpdateTodo:
-  #   handler: src/lambda/http/updateTodo.handler
-  #   events:
-  #     - http:
-  #         method: patch
-  #         path: todos/{todoId}
-  #         authorizer: Auth
-  #         reqValidatorName: RequestBodyValidator
-  #         documentation:
-  #           summary: Update a to do
-  #           description: Update a to do
-  #           requestModels:
-  #             'application/json': TodoUpdate
-  #   iamRoleStatements:
-  #     - Effect: Allow
-  #       Action:
-  #         - codedeploy:*
-  #       Resource:
-  #         - '*'
-  #     - Effect: Allow
-  #       Action:
-  #         - dynamodb:PutItem
-  #         - dynamodb:UpdateItem
-  #       Resource: arn:aws:dynamodb:${self:provider.region}:*:table/${self:provider.environment.TODOS_TABLE}
-  #     - Effect: "Allow" # xray permissions (required)
-  #       Action:
-  #         - "xray:PutTraceSegments"
-  #         - "xray:PutTelemetryRecords"
-  #       Resource:
-  #         - "*"
+  UpdateTodo:
+    handler: src/lambda/http/updateTodo.handler
+    events:
+      - http:
+          method: patch
+          path: todos/{todoId}
+          authorizer: Auth
+          reqValidatorName: RequestBodyValidator
+          documentation:
+            summary: Update a to do
+            description: Update a to do
+            requestModels:
+              'application/json': TodoUpdate
+    iamRoleStatements:
+      - Effect: Allow
+        Action:
+          - codedeploy:*
+        Resource:
+          - '*'
+      - Effect: Allow
+        Action:
+          - dynamodb:PutItem
+          - dynamodb:UpdateItem
+        Resource: arn:aws:dynamodb:${self:provider.region}:*:table/${self:provider.environment.TODOS_TABLE}
+      - Effect: "Allow" # xray permissions (required)
+        Action:
+          - "xray:PutTraceSegments"
+          - "xray:PutTelemetryRecords"
+        Resource:
+          - "*"
 
   # # TODO: Configure this function
   # DeleteTodo:

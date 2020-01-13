@@ -4,6 +4,7 @@ import * as AWS from 'aws-sdk'
 import * as AWSXRAY from 'aws-xray-sdk'
 import { getUserId } from "../lambda/utils";
 import * as uuid from 'uuid'
+import { UpdateTodoRequest } from "../requests/UpdateTodoRequest";
 
 const XAWS = AWSXRAY.captureAWS(AWS)
 const TABLE = process.env.TODOS_TABLE
@@ -15,7 +16,8 @@ export async function createTodo(data: CreateTodoRequest, event:APIGatewayProxyE
         todoId: uuid.v4(),
         createdAt: (new Date()).toISOString(),
         name: data.name,
-        dueDate: data.dueDate
+        dueDate: data.dueDate,
+        done: false
     }
 
     await docClient.put({
@@ -37,4 +39,22 @@ export async function getTodos(event:APIGatewayProxyEvent) {
     }).promise()
 
     return response.Items
+}
+
+export async function updateTodo(data:UpdateTodoRequest, todoId:string, event:APIGatewayProxyEvent) {
+    return await docClient.update({
+        TableName: TABLE,
+        Key: {
+            todoId: todoId,
+            userId: getUserId(event)
+        },
+        UpdateExpression: 'set todoname = :todoname, done = :done, dueDate = :dueDate',
+        ExpressionAttributeValues: {
+            ':todoname': data.name,
+            ':done': data.done,
+            ':dueDate': data.dueDate
+        },
+        ReturnValues: "UPDATED_NEW"     
+          
+    }).promise();
 }
