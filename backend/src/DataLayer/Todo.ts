@@ -44,7 +44,7 @@ export async function getTodos(event:APIGatewayProxyEvent) {
 }
 
 export async function updateTodo(data:UpdateTodoRequest, todoId:string, event:APIGatewayProxyEvent) {
-    return await docClient.update({
+    const response = await docClient.update({
         TableName: TABLE_NAME,
         Key: {
             todoId: todoId,
@@ -56,18 +56,22 @@ export async function updateTodo(data:UpdateTodoRequest, todoId:string, event:AP
             ':done': data.done,
             ':dueDate': data.dueDate
         },
-        ReturnValues: "UPDATED_NEW"
+        ReturnValues: 'UPDATED_NEW'
     }).promise();
+
+    return response
 }
 
 export async function deleteTodo(todoId:string, event:APIGatewayProxyEvent) {
-    return await docClient.delete({
+    const response = await docClient.delete({
         TableName: TABLE_NAME,
         Key: {
             todoId: todoId,
             userId: getUserId(event)
         }
     }).promise()
+
+    return response
 }
 
 export function getUploadUrl(todoId: string) {

@@ -25,9 +25,10 @@ export const handler: APIGatewayProxyHandler = async (event: APIGatewayProxyEven
   }
 
   const uploadUrl = getUploadUrl(todoId)
-  await updateUrl(todoId, event)
+  const updateTodoImageUrl = await updateUrl(todoId, event)
 
-  logger.info('Upload URL:', uploadUrl)
+  logger.info(uploadUrl)
+  logger.info(updateTodoImageUrl)
   
   return {
     statusCode: 200,
