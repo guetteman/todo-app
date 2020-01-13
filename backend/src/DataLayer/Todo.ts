@@ -62,14 +62,12 @@ export async function updateTodo(data:UpdateTodoRequest, todoId:string, event:AP
 }
 
 export async function deleteTodo(todoId:string, event:APIGatewayProxyEvent) {
-    const Key = {
-        todoId: todoId,
-        userId: getUserId(event)
-    }
-
     return await docClient.delete({
         TableName: TABLE_NAME,
-        Key: Key
+        Key: {
+            todoId: todoId,
+            userId: getUserId(event)
+        }
     }).promise()
 }
 
