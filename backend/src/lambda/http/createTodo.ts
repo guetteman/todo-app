@@ -2,35 +2,33 @@ import 'source-map-support/register'
 
 import { APIGatewayProxyEvent, APIGatewayProxyHandler, APIGatewayProxyResult } from 'aws-lambda'
 import { CreateTodoRequest } from '../../requests/CreateTodoRequest'
-import { createTodo } from '../../DataLayer/Todo';
+import { createTodo } from '../../DataLayer/Todo'
 import { createLogger } from '../../utils/logger'
+import { getResponseHeaders } from '../utils'
 
-const logger = createLogger('createtodo')
+const logger = createLogger('createTodo')
 
 export const handler: APIGatewayProxyHandler = async (event: APIGatewayProxyEvent): Promise<APIGatewayProxyResult> => {
   const newTodoData: CreateTodoRequest = JSON.parse(event.body)
-
-  logger.info('hola:', newTodoData)
   const newTodo = await createTodo(newTodoData, event)
 
-  let status = 201;
-
   if (!newTodo) {
-    status = 422
-    logger.error('Unable to create to do')
-  } else {
-    logger.info('New to do:', newTodo)
+    const errorMessage = 'Unable to create to do'
+    
+    logger.error(errorMessage)
+
+    return {
+      headers: getResponseHeaders(),
+      statusCode: 422,
+      body: JSON.stringify({message: errorMessage})
+    }
   }
   
+  logger.info('New to do:', newTodo)
+  
   return {
-    statusCode: status,
-    headers: {
-      'Access-Control-Allow-Origin': '*',
-      'Access-Control-Allow-Credentials': true
-    },
-    body: JSON.stringify({
-      newTodo
-    })
-
+    statusCode: 200,
+    headers: getResponseHeaders(),
+    body: JSON.stringify({item: newTodo})
   }
 }
