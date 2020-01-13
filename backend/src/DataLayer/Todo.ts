@@ -56,8 +56,7 @@ export async function updateTodo(data:UpdateTodoRequest, todoId:string, event:AP
             ':done': data.done,
             ':dueDate': data.dueDate
         },
-        ReturnValues: "UPDATED_NEW"     
-          
+        ReturnValues: "UPDATED_NEW"
     }).promise();
 }
 
