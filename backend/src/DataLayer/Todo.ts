@@ -47,8 +47,12 @@ export async function updateTodo(data:UpdateTodoRequest, todoId:string, event:AP
     const response = await docClient.update({
         TableName: TABLE_NAME,
         Key: {
-            todoId: todoId,
-            userId: getUserId(event)
+            userId: {
+                S: getUserId(event)
+            },
+            todoId: {
+                S: todoId
+            }
         },
         UpdateExpression: 'set todoname = :todoname, done = :done, dueDate = :dueDate',
         ExpressionAttributeValues: {
@@ -66,8 +70,12 @@ export async function deleteTodo(todoId:string, event:APIGatewayProxyEvent) {
     const response = await docClient.delete({
         TableName: TABLE_NAME,
         Key: {
-            todoId: todoId,
-            userId: getUserId(event)
+            userId: {
+                S: getUserId(event)
+            },
+            todoId: {
+                S: todoId
+            }
         }
     }).promise()
 
