@@ -50,12 +50,8 @@ export async function updateTodo(data:UpdateTodoRequest, todoId:string, event:AP
     const response = await docClient.update({
         TableName: TABLE_NAME,
         Key: {
-            userId: {
-                S: getUserId(event)
-            },
-            todoId: {
-                S: todoId
-            }
+            userId: getUserId(event),
+            todoId: todoId
         },
         UpdateExpression: 'set todoname = :todoname, done = :done, dueDate = :dueDate',
         ExpressionAttributeValues: {
