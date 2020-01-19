@@ -13,7 +13,7 @@ export const handler: APIGatewayProxyHandler = async (event: APIGatewayProxyEven
   const todoId = event.pathParameters.todoId
   const todoData: UpdateTodoRequest = JSON.parse(event.body)
 
-  const updatedTodo = updateTodo(todoData, todoId, event)
+  const updatedTodo = await updateTodo(todoData, todoId, event)
 
   if (!updatedTodo) {
     const errorMessage = 'Unable to update to do'

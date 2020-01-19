@@ -47,6 +47,11 @@ export async function getTodos(event:APIGatewayProxyEvent) {
 }
 
 export async function updateTodo(data:UpdateTodoRequest, todoId:string, event:APIGatewayProxyEvent) {
+    logger.info({
+        userId: getUserId(event),
+        todoId: todoId
+    });
+    
     const response = await docClient.update({
         TableName: TABLE_NAME,
         Key: {
@@ -93,16 +98,14 @@ export function getUploadUrl(todoId: string) {
     })
 }
 
-export async function updateUrl(todoId: string, event:APIGatewayProxyEvent){
-    const url =  `https://${BUCKET}.s3.amazonaws.com/${todoId}`
-    
+export async function updateUrl(todoId: string, event:APIGatewayProxyEvent, url: string){
     return await docClient.update({
         TableName: TABLE_NAME,
         Key: {
           todoId: todoId,
           userId: getUserId(event)
         },
-        UpdateExpression: 'set uploadUrl = :uploadUrl',
+        UpdateExpression: 'set attachmentUrl = :uploadUrl',
         ExpressionAttributeValues: {
             ':uploadUrl': url
         },
