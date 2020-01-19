@@ -5,6 +5,9 @@ import * as AWSXRAY from 'aws-xray-sdk'
 import { getUserId } from "../lambda/utils";
 import * as uuid from 'uuid'
 import { UpdateTodoRequest } from "../requests/UpdateTodoRequest";
+import { createLogger } from '../utils/logger'
+
+const logger = createLogger('deleteTodo')
 
 const XAWS = AWSXRAY.captureAWS(AWS)
 const TABLE_NAME = process.env.TODOS_TABLE
@@ -67,15 +70,16 @@ export async function updateTodo(data:UpdateTodoRequest, todoId:string, event:AP
 }
 
 export async function deleteTodo(todoId:string, event:APIGatewayProxyEvent) {
+    logger.info({
+        userId: getUserId(event),
+        todoId: todoId
+    });
+    
     const response = await docClient.delete({
         TableName: TABLE_NAME,
         Key: {
-            userId: {
-                S: getUserId(event)
-            },
-            todoId: {
-                S: todoId
-            }
+            userId: getUserId(event),
+            todoId: todoId
         }
     }).promise()
 

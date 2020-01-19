@@ -10,7 +10,9 @@ const logger = createLogger('deleteTodo')
 export const handler: APIGatewayProxyHandler = async (event: APIGatewayProxyEvent): Promise<APIGatewayProxyResult> => {
   const todoId = event.pathParameters.todoId
 
-  const response = deleteTodo(todoId, event)
+  const response = await deleteTodo(todoId, event)
+
+  logger.info(response);
 
   if (!response) {
     const errorMessage = 'Unable to delete to do'
